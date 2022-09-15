@@ -1,8 +1,7 @@
 package com.stock.dividend.persist.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.stock.dividend.model.Dividend;
+import lombok.*;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -10,9 +9,9 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import java.time.LocalDateTime;
 
-@AllArgsConstructor
 @NoArgsConstructor
-@Data
+@Getter
+@ToString
 @Entity(name = "DIVIDEND")
 public class DividendEntity {
     @Id
@@ -24,4 +23,10 @@ public class DividendEntity {
     private LocalDateTime date;
 
     private String dividend;
+
+    public DividendEntity(Long companyId, Dividend dividend) {
+        this.companyId = companyId;
+        this.date = dividend.getDate();
+        this.dividend = dividend.getDividend();
+    }
 }

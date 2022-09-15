@@ -1,14 +1,13 @@
 package com.stock.dividend.persist.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.stock.dividend.model.Company;
+import lombok.*;
 
 import javax.persistence.*;
 
 @NoArgsConstructor
-@AllArgsConstructor
-@Data
+@Getter
+@ToString
 @Entity(name = "COMPANY")
 public class CompanyEntity {
     @Id
@@ -19,4 +18,9 @@ public class CompanyEntity {
     private String ticker;
 
     private String name;
+
+    public CompanyEntity(Company company) {
+        this.ticker = company.getTicker();
+        this.name = company.getName();
+    }
 }
