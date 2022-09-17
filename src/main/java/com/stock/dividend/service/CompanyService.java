@@ -8,7 +8,9 @@ import com.stock.dividend.persist.entity.CompanyEntity;
 import com.stock.dividend.persist.entity.DividendEntity;
 import com.stock.dividend.scraper.Scraper;
 import lombok.AllArgsConstructor;
+import org.apache.commons.collections4.Trie;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
@@ -20,6 +22,7 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class CompanyService {
 
+    private final Trie trie;
     private final Scraper yahooFinanceScraper;
 
     private final CompanyRepository companyRepository;
@@ -58,5 +61,41 @@ public class CompanyService {
         this.dividendRepository.saveAll(dividendEntityList);
 
         return company;
+    }
+
+    /**
+     * LIKE연산을 이용한 방법으로 구현이 TRIE를 이용하는 것보다 간단
+     * 하지만 데이터베이스에서 데이터를 찾으므로 DB에 부하를 줄 수 있음
+     * 데이터의 양, 크기와 해당 연산이 발생하는 비용 등을 계산해서 DB에 부하를 주지 않을 정도라면 사용해도 되나
+     * DB에 부하가 많이 가는 경우에는 지양해야 함
+     * @param keyword
+     * @return
+     */
+    public List<String> getCompanyNamesByKeword(String keyword) {
+        Pageable limit = PageRequest.of(0, 10);
+        Page<CompanyEntity> companyEntities = this.companyRepository.findByNameStartingWithIgnoreCase(keyword, limit);
+        return companyEntities.stream()
+                .map(e -> e.getName())
+                .collect(Collectors.toList());
+    }
+
+    public void addAutocompleteKeyword(String keyword) {
+        this.trie.put(keyword, null);
+    }
+
+    /**
+     * trie를 쓰기 위한 메모리가 필요하고, 데이터를 찾는 연산 또한 서버에서 이루어짐
+     * @param keyword
+     * @return
+     */
+    public Object autocomplete(String keyword) {
+        return this.trie.prefixMap(keyword).keySet()
+                .stream()
+                //.limit(10)
+                .collect(Collectors.toList());
+    }
+
+    public void deleteAutocompleteKeyword(String keyword) {
+        this.trie.remove(keyword);
     }
 }
