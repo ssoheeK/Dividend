@@ -3,16 +3,20 @@ package com.stock.dividend.persist.entity;
 import com.stock.dividend.model.Dividend;
 import lombok.*;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @NoArgsConstructor
 @Getter
 @ToString
 @Entity(name = "DIVIDEND")
+@Table( //복합 유니크 키
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        columnNames = {"companyId", "date"}
+                )
+        }
+)
 public class DividendEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
