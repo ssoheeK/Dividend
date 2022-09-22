@@ -41,8 +41,7 @@ public class CacheConfig {
 
     /**
      * 커넥션을 관리하기 위한 redisconnectionfactory
-     * cluster 사용시엔 RedisClusterConfiguration 사용
-     * @return
+     * Cluster 사용시엔 RedisClusterConfiguration 사용
      */
     @Bean
     public RedisConnectionFactory redisConnectionFactory() {

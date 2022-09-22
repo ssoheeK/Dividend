@@ -1,12 +1,15 @@
 package com.stock.dividend.controller;
 
 import com.stock.dividend.model.Company;
+import com.stock.dividend.model.constants.CacheKey;
 import com.stock.dividend.persist.entity.CompanyEntity;
 import com.stock.dividend.service.CompanyService;
 import lombok.AllArgsConstructor;
+import org.springframework.cache.CacheManager;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 public class CompanyController {
 
     private final CompanyService companyService;
+    private final CacheManager redisCacheManager;
 
     @GetMapping("/autocomplete")
     public ResponseEntity<?> autoComplete(@RequestParam String keyword) {
@@ -24,12 +28,14 @@ public class CompanyController {
     }
 
     @GetMapping
+    @PreAuthorize("hasRole('READ')")
     public ResponseEntity<?> searchCompany(final Pageable pageable) {
         Page<CompanyEntity> companies = companyService.getAllCompany(pageable);
         return ResponseEntity.ok(companies);
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('WRITE')")   // 쓰기 권한이 있는 유저만 호출 가능
     public ResponseEntity<?> addCompany(@RequestBody Company request) {
         String ticker = request.getTicker().trim();
         if (ObjectUtils.isEmpty(ticker)) {
@@ -42,8 +48,17 @@ public class CompanyController {
         return ResponseEntity.ok(company);
     }
 
-    @DeleteMapping
+    @DeleteMapping("{ticker}")
+    @PreAuthorize("hasRole('WRITE')")
     public ResponseEntity<?> deleteCompany(@RequestParam String ticker) {
-        return null;
+        String companyName = this.companyService.deleteCompany(ticker);
+
+        // 캐시 삭제
+        this.clearFinanceCache(companyName);
+        return ResponseEntity.ok(companyName);
+    }
+
+    public void clearFinanceCache(String companyName) {
+        this.redisCacheManager.getCache(CacheKey.KEY_FINANCE).evict(companyName);
     }
 }

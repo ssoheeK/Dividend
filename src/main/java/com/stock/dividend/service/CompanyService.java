@@ -68,8 +68,6 @@ public class CompanyService {
      * 하지만 데이터베이스에서 데이터를 찾으므로 DB에 부하를 줄 수 있음
      * 데이터의 양, 크기와 해당 연산이 발생하는 비용 등을 계산해서 DB에 부하를 주지 않을 정도라면 사용해도 되나
      * DB에 부하가 많이 가는 경우에는 지양해야 함
-     * @param keyword
-     * @return
      */
     public List<String> getCompanyNamesByKeword(String keyword) {
         Pageable limit = PageRequest.of(0, 10);
@@ -85,8 +83,6 @@ public class CompanyService {
 
     /**
      * trie를 쓰기 위한 메모리가 필요하고, 데이터를 찾는 연산 또한 서버에서 이루어짐
-     * @param keyword
-     * @return
      */
     public Object autocomplete(String keyword) {
         return this.trie.prefixMap(keyword).keySet()
@@ -97,5 +93,18 @@ public class CompanyService {
 
     public void deleteAutocompleteKeyword(String keyword) {
         this.trie.remove(keyword);
+    }
+
+    public String deleteCompany(String ticker) {
+        var company = this.companyRepository.findByTicker(ticker)
+                                            .orElseThrow(() -> new RuntimeException("존재하지 않는 회사입니다."));
+
+        // 해당 회사의 저장된 배당금도 지워준다.
+        this.dividendRepository.deleteAllByCompanyId(company.getId());
+        this.companyRepository.delete(company);
+
+        // trie에 있는 데이터도 지움
+        this.deleteAutocompleteKeyword(company.getName());
+        return company.getName();
     }
 }
