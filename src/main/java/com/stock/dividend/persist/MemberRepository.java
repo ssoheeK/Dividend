@@ -1,6 +1,6 @@
 package com.stock.dividend.persist;
 
-import com.stock.dividend.model.MemberEntity;
+import com.stock.dividend.persist.entity.MemberEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

@@ -1,4 +1,4 @@
-package com.stock.dividend.model;
+package com.stock.dividend.persist.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;

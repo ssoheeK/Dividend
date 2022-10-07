@@ -3,7 +3,7 @@ package com.stock.dividend.service;
 import com.stock.dividend.exception.impl.AlreadyExistUserException;
 import com.stock.dividend.exception.impl.NoCompanyException;
 import com.stock.dividend.model.Auth;
-import com.stock.dividend.model.MemberEntity;
+import com.stock.dividend.persist.entity.MemberEntity;
 import com.stock.dividend.persist.MemberRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

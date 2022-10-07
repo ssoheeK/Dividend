@@ -1,5 +1,6 @@
 package com.stock.dividend.model;
 
+import com.stock.dividend.persist.entity.MemberEntity;
 import lombok.Data;
 
 import java.util.List;
